@@ -71,24 +71,20 @@ export default function UsuariosPage() {
         if (error) throw error
         toast.success('Usuário atualizado!')
       } else {
-        // Create new user via Supabase Admin (requires service role - using auth signUp)
-        const { data, error } = await supabase.auth.admin.createUser({
-          email: form.email,
-          password: form.password,
-          email_confirm: true,
-          user_metadata: {
+        // Chama API Route server-side (usa service role key com segurança)
+        const res = await fetch('/api/admin/create-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
             full_name: form.full_name,
+            matricula: form.matricula,
             role: form.role,
-          },
+          }),
         })
-        if (error) throw error
-        // Update profile with matricula and role
-        if (data.user) {
-          await supabase.from('profiles').update({
-            matricula: form.matricula || null,
-            role: form.role,
-          }).eq('id', data.user.id)
-        }
+        const result = await res.json()
+        if (!res.ok) throw new Error(result.error ?? 'Erro ao criar usuário')
         toast.success('Usuário criado com sucesso!')
       }
       closeForm()
