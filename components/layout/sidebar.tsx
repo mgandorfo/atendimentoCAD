@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/auth-context'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
@@ -15,6 +16,7 @@ import {
   Building2,
   Wrench,
   ChevronRight,
+  LogOut,
 } from 'lucide-react'
 
 const navItems = [
@@ -32,7 +34,15 @@ const adminItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, isAdmin } = useAuth()
+  const supabase = createClient()
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-slate-900 border-r border-slate-800">
@@ -102,10 +112,10 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* User profile */}
-      <div className="px-4 py-4 border-t border-slate-800">
+      {/* User profile + Logout */}
+      <div className="px-4 py-4 border-t border-slate-800 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-semibold text-slate-300 uppercase">
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-semibold text-slate-300 uppercase shrink-0">
             {profile?.full_name?.charAt(0) ?? '?'}
           </div>
           <div className="flex-1 min-w-0">
@@ -113,6 +123,13 @@ export function Sidebar() {
             <p className="text-xs text-slate-400 capitalize">{profile?.role ?? ''}</p>
           </div>
         </div>
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-150"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          Sair do sistema
+        </button>
       </div>
     </aside>
   )

@@ -31,19 +31,27 @@ interface AtendimentoRow {
   status: { nome: string; cor: string }
 }
 
+function getDefaultDates() {
+  const today = new Date()
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+  return {
+    dataInicio: `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-01`,
+    dataFim: `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`,
+  }
+}
+
 export default function RelatoriosPage() {
   const { isAdmin, user } = useAuth()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<AtendimentoRow[]>([])
   const [searched, setSearched] = useState(false)
-  const [filters, setFilters] = useState({
-    dataInicio: format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'),
-    dataFim: format(new Date(), 'yyyy-MM-dd'),
+  const [filters, setFilters] = useState(() => ({
+    ...getDefaultDates(),
     status_id: 'todos',
     setor_id: 'todos',
     servidor_id: 'todos',
-  })
+  }))
   const [statusList, setStatusList] = useState<{ id: string; nome: string }[]>([])
   const [setores, setSetores] = useState<{ id: string; nome: string }[]>([])
   const [servidores, setServidores] = useState<{ id: string; full_name: string }[]>([])
