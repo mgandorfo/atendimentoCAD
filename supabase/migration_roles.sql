@@ -14,7 +14,7 @@ ALTER TABLE public.profiles
   ADD CONSTRAINT profiles_role_check
   CHECK (role IN ('admin', 'entrevistador', 'recepcionista', 'externo'));
 
--- 3. Atualizar trigger de criação de usuário (default muda de 'servidor' para 'entrevistador')
+-- 4. Atualizar trigger de criação de usuário
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -28,36 +28,37 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 4. Função auxiliar: roles que podem ver todos os atendimentos
+-- 5. Função para checar quem pode ver todos os atendimentos
+--    Usa SET row_security = off para evitar recursão na policy
 CREATE OR REPLACE FUNCTION can_see_all_atendimentos()
 RETURNS BOOLEAN AS $$
+DECLARE
+  v_role TEXT;
 BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role IN ('admin', 'externo', 'recepcionista')
-  );
+  SELECT role INTO v_role FROM public.profiles WHERE id = auth.uid();
+  RETURN v_role IN ('admin', 'externo', 'recepcionista');
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET row_security = off;
 
--- 5. Função auxiliar: roles que podem ver todos os perfis
-CREATE OR REPLACE FUNCTION can_see_all_profiles()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role IN ('admin', 'externo')
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- 6. Função RPC para externo listar perfis (bypassa RLS via row_security = off)
+CREATE OR REPLACE FUNCTION get_profiles_list()
+RETURNS TABLE(id UUID, full_name TEXT)
+LANGUAGE sql
+SECURITY DEFINER
+SET row_security = off
+AS $$
+  SELECT id, full_name FROM public.profiles ORDER BY full_name;
+$$;
 
--- 6. Atualizar política de SELECT em profiles (externo também pode listar todos)
+-- 7. Restaurar/manter política de SELECT em profiles (usa is_admin() que sabemos funcionar)
 DROP POLICY IF EXISTS "Usuários veem seu próprio perfil" ON public.profiles;
 CREATE POLICY "Usuários veem seu próprio perfil"
   ON public.profiles FOR SELECT
-  USING (id = auth.uid() OR can_see_all_profiles());
+  USING (id = auth.uid() OR is_admin());
 
--- 7. Atualizar política de SELECT em atendimentos
+-- 8. Atualizar política de SELECT em atendimentos
 DROP POLICY IF EXISTS "Servidor vê próprios atendimentos" ON public.atendimentos;
+DROP POLICY IF EXISTS "Atendimentos select" ON public.atendimentos;
 CREATE POLICY "Atendimentos select"
   ON public.atendimentos FOR SELECT
   USING (servidor_id = auth.uid() OR can_see_all_atendimentos());

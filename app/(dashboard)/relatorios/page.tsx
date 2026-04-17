@@ -62,7 +62,11 @@ export default function RelatoriosPage() {
     const [{ data: s }, { data: st }, { data: sv }] = await Promise.all([
       supabase.from('status_atendimento').select('id, nome').order('ordem'),
       supabase.from('setores').select('id, nome').order('nome'),
-      (isAdmin || isExterno) ? supabase.from('profiles').select('id, full_name').order('full_name') : Promise.resolve({ data: [] }),
+      isAdmin
+        ? supabase.from('profiles').select('id, full_name').order('full_name')
+        : isExterno
+          ? supabase.rpc('get_profiles_list')
+          : Promise.resolve({ data: [] }),
     ])
     setStatusList(s ?? [])
     setSetores(st ?? [])
