@@ -57,8 +57,7 @@ export default function DashboardPage() {
     let query = supabase.from('atendimentos').select(`
       id, data_atendimento, servidor_id,
       servico:servicos(nome),
-      status:status_atendimento(nome, cor),
-      servidor:profiles(full_name)
+      status:status_atendimento(nome, cor)
     `)
 
     if (!isAdmin) query = query.eq('servidor_id', user?.id)
@@ -102,11 +101,14 @@ export default function DashboardPage() {
         total
       })))
 
-      // By servidor (admin only)
+      // By servidor (admin only) — busca nomes separadamente
       if (isAdmin) {
+        const { data: profData } = await supabase.from('profiles').select('id, full_name')
+        const profMap: Record<string, string> = {}
+        profData?.forEach(p => { profMap[p.id] = p.full_name })
         const servidorMap: Record<string, number> = {}
         atendimentos.forEach(a => {
-          const name = (a.servidor as any)?.full_name ?? 'N/A'
+          const name = profMap[a.servidor_id] ?? 'N/A'
           servidorMap[name] = (servidorMap[name] || 0) + 1
         })
         setByServidor(Object.entries(servidorMap).map(([name, total]) => ({ name, total })).sort((a,b) => b.total - a.total))

@@ -76,9 +76,8 @@ export default function RelatoriosPage() {
     let query = supabase
       .from('atendimentos')
       .select(`
-        id, data_atendimento, observacoes,
+        id, data_atendimento, observacoes, servidor_id,
         beneficiario:beneficiarios(nome, cpf),
-        servidor:profiles(full_name),
         setor:setores(nome),
         servico:servicos(nome),
         status:status_atendimento(nome, cor)
@@ -109,7 +108,7 @@ export default function RelatoriosPage() {
       formatCPF(a.beneficiario?.cpf ?? ''),
       a.setor?.nome ?? '',
       a.servico?.nome ?? '',
-      a.servidor?.full_name ?? '',
+      servidores.find(s => s.id === (a as any).servidor_id)?.full_name ?? '',
       a.status?.nome ?? '',
       (a.observacoes ?? '').replace(/[\n\r,]/g, ' '),
     ])
@@ -230,7 +229,7 @@ export default function RelatoriosPage() {
                       <TableCell className="text-gray-500 font-mono hidden sm:table-cell">{formatCPF(a.beneficiario?.cpf ?? '')}</TableCell>
                       <TableCell className="text-gray-600 hidden md:table-cell">{a.servico?.nome}</TableCell>
                       <TableCell className="text-gray-600 hidden lg:table-cell">{a.setor?.nome}</TableCell>
-                      {isAdmin && <TableCell className="text-gray-600 hidden xl:table-cell">{a.servidor?.full_name}</TableCell>}
+                      {isAdmin && <TableCell className="text-gray-600 hidden xl:table-cell">{servidores.find(s => s.id === (a as any).servidor_id)?.full_name ?? '—'}</TableCell>}
                       <TableCell>
                         <Badge
                           style={{ backgroundColor: `${a.status?.cor}20`, color: a.status?.cor, borderColor: `${a.status?.cor}40` }}

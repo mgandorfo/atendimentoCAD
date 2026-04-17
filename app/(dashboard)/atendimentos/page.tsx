@@ -63,6 +63,7 @@ export default function AtendimentosPage() {
   const [total, setTotal] = useState(0)
   const [statusList, setStatusList] = useState<{ id: string; nome: string; cor: string }[]>([])
   const [setores, setSetores] = useState<{ id: string; nome: string }[]>([])
+  const [profiles, setProfiles] = useState<{ id: string; full_name: string }[]>([])
   const PAGE_SIZE = 15
 
   useEffect(() => {
@@ -70,12 +71,14 @@ export default function AtendimentosPage() {
   }, [])
 
   async function loadFilters() {
-    const [{ data: s }, { data: st }] = await Promise.all([
+    const [{ data: s }, { data: st }, { data: p }] = await Promise.all([
       supabase.from('status_atendimento').select('id, nome, cor').order('ordem'),
       supabase.from('setores').select('id, nome').eq('ativo', true).order('nome'),
+      supabase.from('profiles').select('id, full_name').order('full_name'),
     ])
     setStatusList(s ?? [])
     setSetores(st ?? [])
+    setProfiles(p ?? [])
   }
 
   const fetchAtendimentos = useCallback(async () => {
@@ -86,9 +89,8 @@ export default function AtendimentosPage() {
     let query = supabase
       .from('atendimentos')
       .select(`
-        id, data_atendimento, observacoes, created_at,
+        id, data_atendimento, observacoes, created_at, servidor_id,
         beneficiario:beneficiarios(id, nome, cpf),
-        servidor:profiles(id, full_name),
         setor:setores(id, nome),
         servico:servicos(id, nome),
         status:status_atendimento(id, nome, cor)
@@ -114,7 +116,7 @@ export default function AtendimentosPage() {
 
     const { data, count, error } = await query
     if (error) {
-      console.error('Erro ao buscar atendimentos:', error)
+      console.error('Erro ao buscar atendimentos:', error.message, error.code, error.details, error.hint)
     } else {
       setAtendimentos((data as any[]) ?? [])
       setTotal(count ?? 0)
@@ -234,7 +236,7 @@ export default function AtendimentosPage() {
                     <TableCell className="font-medium text-sm">{(a.beneficiario as any)?.nome}</TableCell>
                     <TableCell className="text-sm text-gray-600 hidden md:table-cell">{(a.servico as any)?.nome}</TableCell>
                     <TableCell className="text-sm text-gray-600 hidden lg:table-cell">{(a.setor as any)?.nome}</TableCell>
-                    {isAdmin && <TableCell className="text-sm text-gray-600 hidden xl:table-cell">{(a.servidor as any)?.full_name}</TableCell>}
+                    {isAdmin && <TableCell className="text-sm text-gray-600 hidden xl:table-cell">{profiles.find(p => p.id === (a as any).servidor_id)?.full_name ?? '—'}</TableCell>}
                     <TableCell>
                       <Badge
                         style={{ backgroundColor: `${(a.status as any)?.cor}20`, color: (a.status as any)?.cor, borderColor: `${(a.status as any)?.cor}40` }}
