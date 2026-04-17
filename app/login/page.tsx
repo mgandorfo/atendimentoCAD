@@ -34,19 +34,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #005429 0%, #00883A 50%, #005429 100%)' }}>
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg" style={{ backgroundColor: '#005429' }}>
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">CAD Atendimento</h1>
-          <p className="mt-2 text-slate-400 text-sm">Cadastro Único — Sistema de Gestão</p>
+          <p className="mt-2 text-sm" style={{ color: '#a8f0bc' }}>Cadastro Único — Sistema de Gestão</p>
         </div>
 
-        <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur">
+        <Card className="border-0 shadow-2xl bg-white/97 backdrop-blur">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl font-semibold">Entrar no sistema</CardTitle>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="h-1 w-8 rounded-full" style={{ backgroundColor: '#00883A' }} />
+            </div>
+            <CardTitle className="text-xl font-semibold" style={{ color: '#005429' }}>Entrar no sistema</CardTitle>
             <CardDescription>Use suas credenciais de acesso</CardDescription>
           </CardHeader>
           <CardContent>
@@ -76,7 +79,7 @@ export default function LoginPage() {
                   className="h-10"
                 />
               </div>
-              <Button type="submit" className="w-full h-10 bg-blue-600 hover:bg-blue-700" disabled={loading}>
+              <Button type="submit" className="w-full h-10 text-white font-medium" style={{ backgroundColor: '#00883A' }} disabled={loading}>
                 {loading ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Entrando...</>
                 ) : 'Entrar'}
@@ -85,7 +88,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs" style={{ color: 'rgba(168,240,188,0.7)' }}>
           Acesso restrito. Solicite cadastro ao administrador.
         </p>
       </div>

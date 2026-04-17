@@ -116,7 +116,7 @@ export default function BeneficiariosPage() {
               className="pl-9 h-9"
             />
           </div>
-          <Button onClick={() => setShowForm(true)} size="sm" className="bg-blue-600 hover:bg-blue-700 shrink-0">
+          <Button onClick={() => setShowForm(true)} size="sm" className="bg-brand-green hover:bg-brand-dark shrink-0">
             <Plus className="w-4 h-4 mr-1.5" /> Novo Beneficiário
           </Button>
         </div>
@@ -144,7 +144,7 @@ export default function BeneficiariosPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-12">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-600 mx-auto" />
+                    <Loader2 className="h-5 w-5 animate-spin text-brand-green mx-auto" />
                   </TableCell>
                 </TableRow>
               ) : beneficiarios.length === 0 ? (

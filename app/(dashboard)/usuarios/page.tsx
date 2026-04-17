@@ -102,7 +102,7 @@ export default function UsuariosPage() {
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-center">
           <p className="text-sm text-gray-500">{users.length} usuário{users.length !== 1 ? 's' : ''} cadastrado{users.length !== 1 ? 's' : ''}</p>
-          <Button onClick={() => setShowForm(true)} size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => setShowForm(true)} size="sm" className="bg-brand-green hover:bg-brand-dark">
             <Plus className="w-4 h-4 mr-1.5" /> Novo Usuário
           </Button>
         </div>
@@ -121,7 +121,7 @@ export default function UsuariosPage() {
             <TableBody>
               {loading ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-10">
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600 mx-auto" />
+                  <Loader2 className="h-5 w-5 animate-spin text-brand-green mx-auto" />
                 </TableCell></TableRow>
               ) : users.map(u => (
                 <TableRow key={u.id} className="hover:bg-gray-50">
@@ -195,7 +195,7 @@ export default function UsuariosPage() {
             </div>
             <div className="flex justify-end gap-3 pt-2 border-t">
               <Button type="button" variant="outline" onClick={closeForm}>Cancelar</Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={saving}>
+              <Button type="submit" className="bg-brand-green hover:bg-brand-dark" disabled={saving}>
                 {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</> : (editing ? 'Atualizar' : 'Criar')}
               </Button>
             </div>

@@ -31,7 +31,7 @@ import { format, subDays, startOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+const COLORS = ['#00883A', '#7B4FA0', '#00B4C8', '#005429', '#F59E0B', '#EF4444']
 
 export default function DashboardPage() {
   const { isAdmin, isExterno, isRecepcionista, user, loading: authLoading } = useAuth()
@@ -138,10 +138,10 @@ export default function DashboardPage() {
   }
 
   const statCards = [
-    { title: 'Total de Atendimentos', value: stats.total, icon: ClipboardList, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'Atendimentos Hoje', value: stats.hoje, icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { title: 'Atendimentos no Mês', value: stats.mes, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50' },
-    { title: 'Beneficiários Cadastrados', value: stats.beneficiarios, icon: Users, color: 'text-amber-600', bg: 'bg-amber-50' },
+    { title: 'Total de Atendimentos', value: stats.total, icon: ClipboardList, color: '#00883A', bg: 'rgba(0,136,58,0.1)' },
+    { title: 'Atendimentos Hoje', value: stats.hoje, icon: Calendar, color: '#00B4C8', bg: 'rgba(0,180,200,0.1)' },
+    { title: 'Atendimentos no Mês', value: stats.mes, icon: TrendingUp, color: '#7B4FA0', bg: 'rgba(123,79,160,0.1)' },
+    { title: 'Beneficiários Cadastrados', value: stats.beneficiarios, icon: Users, color: '#005429', bg: 'rgba(0,84,41,0.1)' },
   ]
 
   return (
@@ -160,8 +160,8 @@ export default function DashboardPage() {
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{card.title}</p>
                       <p className="text-3xl font-bold text-gray-900 mt-1">{card.value.toLocaleString('pt-BR')}</p>
                     </div>
-                    <div className={`w-11 h-11 rounded-xl ${card.bg} flex items-center justify-center`}>
-                      <Icon className={`w-5 h-5 ${card.color}`} />
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: card.bg }}>
+                      <Icon className="w-5 h-5" style={{ color: card.color }} />
                     </div>
                   </div>
                 </CardContent>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={4} />
                   <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="total" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="total" stroke="#00883A" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                   <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#3B82F6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill="#00883A" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                     <Tooltip />
-                    <Bar dataKey="total" fill="#10B981" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="total" fill="#7B4FA0" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

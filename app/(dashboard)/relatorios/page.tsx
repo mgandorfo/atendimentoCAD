@@ -183,7 +183,7 @@ export default function RelatoriosPage() {
               )}
             </div>
             <div className="flex gap-3 mt-4 pt-4 border-t">
-              <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700" disabled={loading}>
+              <Button onClick={handleSearch} className="bg-brand-green hover:bg-brand-dark" disabled={loading}>
                 {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Buscando...</> : <><Search className="mr-2 h-4 w-4" />Gerar Relatório</>}
               </Button>
               {results.length > 0 && (

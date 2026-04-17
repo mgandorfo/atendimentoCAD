@@ -252,7 +252,7 @@ export function AtendimentoForm({ atendimento, onSuccess, onCancel }: Props) {
 
       <div className="flex justify-end gap-3 pt-2 border-t">
         <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={loading}>
+        <Button type="submit" className="bg-brand-green hover:bg-brand-dark" disabled={loading}>
           {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</> : (atendimento ? 'Atualizar' : 'Registrar')}
         </Button>
       </div>
