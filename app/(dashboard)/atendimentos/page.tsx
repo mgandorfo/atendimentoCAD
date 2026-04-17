@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/auth-context'
 import { Header } from '@/components/layout/header'
@@ -47,8 +47,8 @@ import { ptBR } from 'date-fns/locale'
 import { useDebounce } from '@/hooks/use-debounce'
 
 export default function AtendimentosPage() {
-  const { isAdmin, user } = useAuth()
-  const supabase = createClient()
+  const { isAdmin, user, loading: authLoading } = useAuth()
+  const supabase = useMemo(() => createClient(), [])
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -79,6 +79,7 @@ export default function AtendimentosPage() {
   }
 
   const fetchAtendimentos = useCallback(async () => {
+    if (authLoading) return
     setLoading(true)
     const today = new Date()
 
@@ -112,12 +113,14 @@ export default function AtendimentosPage() {
     }
 
     const { data, count, error } = await query
-    if (!error) {
+    if (error) {
+      console.error('Erro ao buscar atendimentos:', error)
+    } else {
       setAtendimentos((data as any[]) ?? [])
       setTotal(count ?? 0)
     }
     setLoading(false)
-  }, [debouncedSearch, filterStatus, filterSetor, filterPeriodo, page, isAdmin, user, supabase])
+  }, [debouncedSearch, filterStatus, filterSetor, filterPeriodo, page, isAdmin, user, authLoading, supabase])
 
   useEffect(() => { fetchAtendimentos() }, [fetchAtendimentos])
 

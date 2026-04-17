@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/auth-context'
 import { Header } from '@/components/layout/header'
@@ -33,8 +33,8 @@ import { ptBR } from 'date-fns/locale'
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 
 export default function DashboardPage() {
-  const { isAdmin, user } = useAuth()
-  const supabase = createClient()
+  const { isAdmin, user, loading: authLoading } = useAuth()
+  const supabase = useMemo(() => createClient(), [])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, hoje: 0, mes: 0, beneficiarios: 0 })
   const [byServico, setByServico] = useState<{ name: string; value: number }[]>([])
@@ -43,10 +43,11 @@ export default function DashboardPage() {
   const [byServidor, setByServidor] = useState<{ name: string; total: number }[]>([])
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    if (!authLoading) fetchDashboardData()
+  }, [authLoading, isAdmin, user])
 
   async function fetchDashboardData() {
+    if (!user && !isAdmin) { setLoading(false); return }
     setLoading(true)
     const today = new Date()
     const todayStr = format(today, 'yyyy-MM-dd')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -39,8 +39,8 @@ import { useAuth } from '@/context/auth-context'
 import { useDebounce } from '@/hooks/use-debounce'
 
 export default function BeneficiariosPage() {
-  const { isAdmin } = useAuth()
-  const supabase = createClient()
+  const { isAdmin, loading: authLoading } = useAuth()
+  const supabase = useMemo(() => createClient(), [])
   const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -53,6 +53,7 @@ export default function BeneficiariosPage() {
   const PAGE_SIZE = 15
 
   const fetchBeneficiarios = useCallback(async () => {
+    if (authLoading) return
     setLoading(true)
     let query = supabase
       .from('beneficiarios')
@@ -65,12 +66,14 @@ export default function BeneficiariosPage() {
     }
 
     const { data, count, error } = await query
-    if (!error) {
+    if (error) {
+      console.error('Erro ao buscar beneficiários:', error)
+    } else {
       setBeneficiarios(data ?? [])
       setTotal(count ?? 0)
     }
     setLoading(false)
-  }, [debouncedSearch, page, supabase])
+  }, [debouncedSearch, page, authLoading, supabase])
 
   useEffect(() => { fetchBeneficiarios() }, [fetchBeneficiarios])
 
