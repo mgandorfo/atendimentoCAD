@@ -10,6 +10,9 @@ interface AuthContextType {
   profile: Profile | null
   loading: boolean
   isAdmin: boolean
+  isEntrevistador: boolean
+  isRecepcionista: boolean
+  isExterno: boolean
   refreshProfile: () => Promise<void>
 }
 
@@ -18,6 +21,9 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   isAdmin: false,
+  isEntrevistador: false,
+  isRecepcionista: false,
+  isExterno: false,
   refreshProfile: async () => {},
 })
 
@@ -61,6 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       loading,
       isAdmin: profile?.role === 'admin',
+      isEntrevistador: profile?.role === 'entrevistador',
+      isRecepcionista: profile?.role === 'recepcionista',
+      isExterno: profile?.role === 'externo',
       refreshProfile,
     }}>
       {children}

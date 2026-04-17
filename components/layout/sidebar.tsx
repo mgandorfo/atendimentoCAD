@@ -19,11 +19,11 @@ import {
   LogOut,
 } from 'lucide-react'
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/atendimentos', label: 'Atendimentos', icon: ClipboardList },
-  { href: '/beneficiarios', label: 'Beneficiários', icon: Users },
-  { href: '/relatorios', label: 'Relatórios', icon: BarChart3 },
+const allNavItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'entrevistador'] },
+  { href: '/atendimentos', label: 'Atendimentos', icon: ClipboardList, roles: ['admin', 'entrevistador', 'recepcionista'] },
+  { href: '/beneficiarios', label: 'Beneficiários', icon: Users, roles: ['admin', 'entrevistador', 'recepcionista'] },
+  { href: '/relatorios', label: 'Relatórios', icon: BarChart3, roles: ['admin', 'entrevistador', 'externo'] },
 ]
 
 const adminItems = [
@@ -32,10 +32,18 @@ const adminItems = [
   { href: '/usuarios', label: 'Usuários', icon: UserCog },
 ]
 
+const roleLabels: Record<string, string> = {
+  admin: 'Administrador',
+  entrevistador: 'Entrevistador',
+  recepcionista: 'Recepcionista',
+  externo: 'Externo',
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { profile, isAdmin } = useAuth()
+  const navItems = allNavItems.filter(item => item.roles.includes(profile?.role ?? ''))
   const supabase = createClient()
 
   async function handleSignOut() {
@@ -120,7 +128,7 @@ export function Sidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-white truncate">{profile?.full_name ?? 'Carregando...'}</p>
-            <p className="text-xs text-slate-400 capitalize">{profile?.role ?? ''}</p>
+            <p className="text-xs text-slate-400">{roleLabels[profile?.role ?? ''] ?? profile?.role ?? ''}</p>
           </div>
         </div>
         <button

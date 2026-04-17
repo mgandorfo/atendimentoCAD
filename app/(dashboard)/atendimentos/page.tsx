@@ -47,7 +47,7 @@ import { ptBR } from 'date-fns/locale'
 import { useDebounce } from '@/hooks/use-debounce'
 
 export default function AtendimentosPage() {
-  const { isAdmin, user, loading: authLoading } = useAuth()
+  const { isAdmin, isRecepcionista, user, loading: authLoading } = useAuth()
   const supabase = useMemo(() => createClient(), [])
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
   const [loading, setLoading] = useState(true)
@@ -99,7 +99,7 @@ export default function AtendimentosPage() {
       .order('created_at', { ascending: false })
       .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
 
-    if (!isAdmin) query = query.eq('servidor_id', user?.id)
+    if (!isAdmin && !isRecepcionista) query = query.eq('servidor_id', user?.id)
 
     if (filterStatus !== 'todos') query = query.eq('status_id', filterStatus)
     if (filterSetor !== 'todos') query = query.eq('setor_id', filterSetor)
@@ -122,7 +122,7 @@ export default function AtendimentosPage() {
       setTotal(count ?? 0)
     }
     setLoading(false)
-  }, [debouncedSearch, filterStatus, filterSetor, filterPeriodo, page, isAdmin, user, authLoading, supabase])
+  }, [debouncedSearch, filterStatus, filterSetor, filterPeriodo, page, isAdmin, isRecepcionista, user, authLoading, supabase])
 
   useEffect(() => { fetchAtendimentos() }, [fetchAtendimentos])
 

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT NOT NULL,
   matricula TEXT,
-  role TEXT NOT NULL DEFAULT 'servidor' CHECK (role IN ('admin', 'servidor')),
+  role TEXT NOT NULL DEFAULT 'entrevistador' CHECK (role IN ('admin', 'entrevistador', 'recepcionista', 'externo')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -106,7 +106,7 @@ BEGIN
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'servidor')
+    COALESCE(NEW.raw_user_meta_data->>'role', 'entrevistador')
   );
   RETURN NEW;
 END;
@@ -141,7 +141,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Policies: profiles
 CREATE POLICY "Usuários veem seu próprio perfil"
   ON public.profiles FOR SELECT
-  USING (id = auth.uid() OR is_admin());
+  USING (id = auth.uid() OR can_see_all_profiles());
 
 CREATE POLICY "Admin gerencia perfis"
   ON public.profiles FOR ALL
@@ -195,10 +195,32 @@ CREATE POLICY "Admin deleta beneficiarios"
   ON public.beneficiarios FOR DELETE
   USING (is_admin());
 
--- Policies: atendimentos (servidor vê os próprios, admin vê todos)
-CREATE POLICY "Servidor vê próprios atendimentos"
+-- Helper: roles que veem todos os atendimentos
+CREATE OR REPLACE FUNCTION can_see_all_atendimentos()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('admin', 'externo', 'recepcionista')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Helper: roles que veem todos os perfis
+CREATE OR REPLACE FUNCTION can_see_all_profiles()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('admin', 'externo')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Policies: atendimentos (entrevistador vê os próprios, admin/recepcionista/externo vê todos)
+CREATE POLICY "Atendimentos select"
   ON public.atendimentos FOR SELECT
-  USING (servidor_id = auth.uid() OR is_admin());
+  USING (servidor_id = auth.uid() OR can_see_all_atendimentos());
 
 CREATE POLICY "Servidor cria atendimento"
   ON public.atendimentos FOR INSERT

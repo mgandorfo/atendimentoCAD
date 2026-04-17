@@ -29,11 +29,13 @@ import {
 } from 'lucide-react'
 import { format, subDays, startOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 
 export default function DashboardPage() {
-  const { isAdmin, user, loading: authLoading } = useAuth()
+  const { isAdmin, isExterno, isRecepcionista, user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, hoje: 0, mes: 0, beneficiarios: 0 })
@@ -43,8 +45,11 @@ export default function DashboardPage() {
   const [byServidor, setByServidor] = useState<{ name: string; total: number }[]>([])
 
   useEffect(() => {
-    if (!authLoading) fetchDashboardData()
-  }, [authLoading, isAdmin, user])
+    if (authLoading) return
+    if (isExterno) { router.replace('/relatorios'); return }
+    if (isRecepcionista) { router.replace('/atendimentos'); return }
+    fetchDashboardData()
+  }, [authLoading, isAdmin, isExterno, isRecepcionista, user])
 
   async function fetchDashboardData() {
     if (!user && !isAdmin) { setLoading(false); return }

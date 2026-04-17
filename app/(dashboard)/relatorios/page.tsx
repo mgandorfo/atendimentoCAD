@@ -41,7 +41,7 @@ function getDefaultDates() {
 }
 
 export default function RelatoriosPage() {
-  const { isAdmin, user } = useAuth()
+  const { isAdmin, isExterno, user } = useAuth()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<AtendimentoRow[]>([])
@@ -62,7 +62,7 @@ export default function RelatoriosPage() {
     const [{ data: s }, { data: st }, { data: sv }] = await Promise.all([
       supabase.from('status_atendimento').select('id, nome').order('ordem'),
       supabase.from('setores').select('id, nome').order('nome'),
-      isAdmin ? supabase.from('profiles').select('id, full_name').order('full_name') : Promise.resolve({ data: [] }),
+      (isAdmin || isExterno) ? supabase.from('profiles').select('id, full_name').order('full_name') : Promise.resolve({ data: [] }),
     ])
     setStatusList(s ?? [])
     setSetores(st ?? [])
@@ -86,7 +86,7 @@ export default function RelatoriosPage() {
       .lte('data_atendimento', filters.dataFim)
       .order('data_atendimento', { ascending: false })
 
-    if (!isAdmin) query = query.eq('servidor_id', user?.id)
+    if (!isAdmin && !isExterno) query = query.eq('servidor_id', user?.id)
     else if (filters.servidor_id !== 'todos') query = query.eq('servidor_id', filters.servidor_id)
 
     if (filters.status_id !== 'todos') query = query.eq('status_id', filters.status_id)
@@ -165,7 +165,7 @@ export default function RelatoriosPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {isAdmin && (
+              {(isAdmin || isExterno) && (
                 <div className="space-y-1.5">
                   <Label>Servidor</Label>
                   <Select value={filters.servidor_id} onValueChange={v => setFilters(f => ({ ...f, servidor_id: v ?? 'todos' }))} onOpenChange={() => loadFilters()}>
@@ -209,14 +209,14 @@ export default function RelatoriosPage() {
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden sm:table-cell">CPF</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden md:table-cell">Serviço</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden lg:table-cell">Setor</TableHead>
-                    {isAdmin && <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden xl:table-cell">Servidor</TableHead>}
+                    {(isAdmin || isExterno) && <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden xl:table-cell">Servidor</TableHead>}
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {results.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={isAdmin ? 7 : 6} className="text-center py-10 text-gray-400 text-sm">
+                      <TableCell colSpan={(isAdmin || isExterno) ? 7 : 6} className="text-center py-10 text-gray-400 text-sm">
                         Nenhum atendimento encontrado para os filtros selecionados
                       </TableCell>
                     </TableRow>
@@ -229,7 +229,7 @@ export default function RelatoriosPage() {
                       <TableCell className="text-gray-500 font-mono hidden sm:table-cell">{formatCPF(a.beneficiario?.cpf ?? '')}</TableCell>
                       <TableCell className="text-gray-600 hidden md:table-cell">{a.servico?.nome}</TableCell>
                       <TableCell className="text-gray-600 hidden lg:table-cell">{a.setor?.nome}</TableCell>
-                      {isAdmin && <TableCell className="text-gray-600 hidden xl:table-cell">{servidores.find(s => s.id === (a as any).servidor_id)?.full_name ?? '—'}</TableCell>}
+                      {(isAdmin || isExterno) && <TableCell className="text-gray-600 hidden xl:table-cell">{servidores.find(s => s.id === (a as any).servidor_id)?.full_name ?? '—'}</TableCell>}
                       <TableCell>
                         <Badge
                           style={{ backgroundColor: `${a.status?.cor}20`, color: a.status?.cor, borderColor: `${a.status?.cor}40` }}

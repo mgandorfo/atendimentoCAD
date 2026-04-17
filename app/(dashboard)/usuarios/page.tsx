@@ -19,7 +19,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import type { Profile } from '@/lib/types'
-import { Plus, Pencil, Loader2, Shield, User as UserIcon } from 'lucide-react'
+import { Plus, Pencil, Loader2, Shield, User as UserIcon, UserCheck, Eye } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function UsuariosPage() {
@@ -30,7 +30,7 @@ export default function UsuariosPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Profile | null>(null)
-  const [form, setForm] = useState({ email: '', password: '', full_name: '', matricula: '', role: 'servidor' as 'admin' | 'servidor' })
+  const [form, setForm] = useState({ email: '', password: '', full_name: '', matricula: '', role: 'entrevistador' as 'admin' | 'entrevistador' | 'recepcionista' | 'externo' })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function UsuariosPage() {
   function closeForm() {
     setShowForm(false)
     setEditing(null)
-    setForm({ email: '', password: '', full_name: '', matricula: '', role: 'servidor' })
+    setForm({ email: '', password: '', full_name: '', matricula: '', role: 'entrevistador' })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -135,9 +135,10 @@ export default function UsuariosPage() {
                   </TableCell>
                   <TableCell className="text-sm text-gray-500 hidden md:table-cell">{u.matricula || '—'}</TableCell>
                   <TableCell>
-                    <Badge className={u.role === 'admin' ? 'bg-violet-100 text-violet-700 border-violet-200' : 'bg-blue-100 text-blue-700 border-blue-200'}>
-                      {u.role === 'admin' ? <><Shield className="w-3 h-3 mr-1" />Admin</> : <><UserIcon className="w-3 h-3 mr-1" />Servidor</>}
-                    </Badge>
+                    {u.role === 'admin' && <Badge className="bg-violet-100 text-violet-700 border-violet-200"><Shield className="w-3 h-3 mr-1" />Administrador</Badge>}
+                    {u.role === 'entrevistador' && <Badge className="bg-blue-100 text-blue-700 border-blue-200"><UserIcon className="w-3 h-3 mr-1" />Entrevistador</Badge>}
+                    {u.role === 'recepcionista' && <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200"><UserCheck className="w-3 h-3 mr-1" />Recepcionista</Badge>}
+                    {u.role === 'externo' && <Badge className="bg-amber-100 text-amber-700 border-amber-200"><Eye className="w-3 h-3 mr-1" />Externo</Badge>}
                   </TableCell>
                   <TableCell className="text-sm text-gray-500 hidden lg:table-cell">
                     {new Date(u.created_at).toLocaleDateString('pt-BR')}
@@ -185,7 +186,9 @@ export default function UsuariosPage() {
               <Select value={form.role} onValueChange={v => setForm(f => ({ ...f, role: v as any }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="servidor">Servidor</SelectItem>
+                  <SelectItem value="entrevistador">Entrevistador</SelectItem>
+                  <SelectItem value="recepcionista">Recepcionista</SelectItem>
+                  <SelectItem value="externo">Externo</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
