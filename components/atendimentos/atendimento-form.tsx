@@ -99,7 +99,7 @@ export function AtendimentoForm({ atendimento, onSuccess, onCancel }: Props) {
   }
 
   const filteredServicos = form.setor_id
-    ? servicos.filter(s => s.setor_id === form.setor_id)
+    ? servicos.filter(s => s.setor_id === form.setor_id || s.setor_id === null)
     : servicos
 
   async function handleSubmit(e: React.FormEvent) {
@@ -184,7 +184,9 @@ export function AtendimentoForm({ atendimento, onSuccess, onCancel }: Props) {
           <Label>Setor *</Label>
           <Select value={form.setor_id} onValueChange={v => setForm(f => ({ ...f, setor_id: v ?? '', servico_id: '' }))}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o setor" />
+              <SelectValue placeholder="Selecione o setor">
+                {setores.find(s => s.id === form.setor_id)?.nome ?? 'Selecione o setor'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {setores.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}
@@ -197,10 +199,15 @@ export function AtendimentoForm({ atendimento, onSuccess, onCancel }: Props) {
           <Label>Serviço *</Label>
           <Select value={form.servico_id} onValueChange={v => setForm(f => ({ ...f, servico_id: v ?? '' }))}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o serviço" />
+              <SelectValue placeholder="Selecione o serviço">
+                {filteredServicos.find(s => s.id === form.servico_id)?.nome ?? 'Selecione o serviço'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {filteredServicos.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}
+              {filteredServicos.length === 0
+                ? <div className="px-4 py-3 text-sm text-gray-400">Nenhum serviço disponível para este setor</div>
+                : filteredServicos.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)
+              }
             </SelectContent>
           </Select>
         </div>
@@ -210,7 +217,9 @@ export function AtendimentoForm({ atendimento, onSuccess, onCancel }: Props) {
           <Label>Status *</Label>
           <Select value={form.status_id} onValueChange={v => setForm(f => ({ ...f, status_id: v ?? '' }))}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o status" />
+              <SelectValue placeholder="Selecione o status">
+                {statusList.find(s => s.id === form.status_id)?.nome ?? 'Selecione o status'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {statusList.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}
