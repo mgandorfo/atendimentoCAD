@@ -3,14 +3,16 @@
 -- Execute no SQL Editor do Supabase
 -- =============================================
 
--- 1. Atualizar constraint de roles (add new roles, rename servidor -> entrevistador)
+-- 1. Remover constraint antiga
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+
+-- 2. Renomear role 'servidor' para 'entrevistador' ANTES de adicionar nova constraint
+UPDATE public.profiles SET role = 'entrevistador' WHERE role = 'servidor';
+
+-- 3. Adicionar nova constraint com os roles atualizados
 ALTER TABLE public.profiles
   ADD CONSTRAINT profiles_role_check
   CHECK (role IN ('admin', 'entrevistador', 'recepcionista', 'externo'));
-
--- 2. Renomear role 'servidor' para 'entrevistador' nos registros existentes
-UPDATE public.profiles SET role = 'entrevistador' WHERE role = 'servidor';
 
 -- 3. Atualizar trigger de criação de usuário (default muda de 'servidor' para 'entrevistador')
 CREATE OR REPLACE FUNCTION handle_new_user()
