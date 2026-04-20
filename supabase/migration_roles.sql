@@ -3,6 +3,28 @@
 -- Execute no SQL Editor do Supabase
 -- =============================================
 
+-- 0. CRÍTICO: Corrigir funções helper para evitar recursão RLS
+--    Todas as funções que consultam profiles precisam de SET row_security = off
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET row_security = off;
+
+CREATE OR REPLACE FUNCTION can_see_all_profiles()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('admin', 'externo')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET row_security = off;
+
 -- 1. Remover constraint antiga
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
 

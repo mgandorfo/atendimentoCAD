@@ -17,10 +17,12 @@ import {
   Wrench,
   ChevronRight,
   LogOut,
+  ListOrdered,
 } from 'lucide-react'
 
 const allNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'entrevistador'] },
+  { href: '/fila', label: 'Fila de Atendimento', icon: ListOrdered, roles: ['admin', 'entrevistador', 'recepcionista'] },
   { href: '/atendimentos', label: 'Atendimentos', icon: ClipboardList, roles: ['admin', 'entrevistador', 'recepcionista'] },
   { href: '/beneficiarios', label: 'Beneficiários', icon: Users, roles: ['admin', 'entrevistador', 'recepcionista'] },
   { href: '/relatorios', label: 'Relatórios', icon: BarChart3, roles: ['admin', 'entrevistador', 'externo'] },

@@ -27,6 +27,15 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
 })
 
+const FETCH_TIMEOUT_MS = 5000
+
+function withTimeout<T>(thenable: PromiseLike<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    Promise.resolve(thenable),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+  ])
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -34,12 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    setProfile(data)
+    try {
+      const result = await withTimeout(
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        FETCH_TIMEOUT_MS
+      )
+      setProfile(result?.data ?? null)
+    } catch {
+      setProfile(null)
+    }
   }, [supabase])
 
   const refreshProfile = useCallback(async () => {
@@ -50,12 +62,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null)
-        if (session?.user) {
-          await fetchProfile(session.user.id)
-        } else {
-          setProfile(null)
+        try {
+          if (session?.user) {
+            await fetchProfile(session.user.id)
+          } else {
+            setProfile(null)
+          }
+        } finally {
+          setLoading(false)
         }
-        setLoading(false)
       }
     )
     return () => subscription.unsubscribe()

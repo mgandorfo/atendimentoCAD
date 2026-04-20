@@ -47,6 +47,7 @@ export interface Beneficiario {
   cidade: string | null
   estado: string | null
   cep: string | null
+  prioritario: boolean
   created_by: string
   created_at: string
   updated_at: string
@@ -56,7 +57,7 @@ export interface Atendimento {
   id: string
   beneficiario_id: string
   beneficiario?: Beneficiario
-  servidor_id: string
+  servidor_id: string | null
   servidor?: Profile
   setor_id: string
   setor?: Setor

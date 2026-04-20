@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import type { Beneficiario } from '@/lib/types'
 import { formatCPF, formatPhone, formatCEP } from '@/lib/format'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Star } from 'lucide-react'
 
 interface Props {
   beneficiario: Beneficiario | null
@@ -27,6 +27,7 @@ export function BeneficiarioForm({ beneficiario, onSuccess, onCancel }: Props) {
   const [form, setForm] = useState({
     nome: '', cpf: '', telefone: '', endereco: '', numero: '',
     complemento: '', bairro: '', cidade: '', estado: 'PA', cep: '',
+    prioritario: false,
   })
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export function BeneficiarioForm({ beneficiario, onSuccess, onCancel }: Props) {
         cidade: beneficiario.cidade ?? '',
         estado: beneficiario.estado ?? 'PA',
         cep: beneficiario.cep ? formatCEP(beneficiario.cep) : '',
+        prioritario: beneficiario.prioritario ?? false,
       })
     }
   }, [beneficiario])
@@ -73,6 +75,7 @@ export function BeneficiarioForm({ beneficiario, onSuccess, onCancel }: Props) {
       cidade: form.cidade || null,
       estado: form.estado || null,
       cep: form.cep.replace(/\D/g, '') || null,
+      prioritario: form.prioritario,
     }
     try {
       if (beneficiario) {
@@ -111,6 +114,21 @@ export function BeneficiarioForm({ beneficiario, onSuccess, onCancel }: Props) {
           <Label htmlFor="telefone">Telefone</Label>
           <Input id="telefone" value={form.telefone} onChange={e => handleChange('telefone', e.target.value)} placeholder="(00) 00000-0000" />
         </div>
+      </div>
+
+      {/* Prioritário */}
+      <div className="flex items-center gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
+        <button
+          type="button"
+          onClick={() => setForm(f => ({ ...f, prioritario: !f.prioritario }))}
+          className={`flex items-center gap-2 text-sm font-medium transition-colors ${form.prioritario ? 'text-amber-600' : 'text-gray-400'}`}
+        >
+          <Star className={`w-5 h-5 ${form.prioritario ? 'fill-amber-400 text-amber-400' : ''}`} />
+          Atendimento Prioritário
+        </button>
+        <span className="text-xs text-gray-400 ml-auto">
+          {form.prioritario ? 'Este beneficiário sempre entra na frente da fila' : 'Clique para marcar como prioritário'}
+        </span>
       </div>
 
       <div className="border-t pt-4">
